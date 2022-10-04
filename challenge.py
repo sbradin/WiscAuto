@@ -4,26 +4,24 @@ import cv2
 import matplotlib.pyplot as plt
 import imutils
 
-
+# load image
 img = cv2.imread("red.png", 1)
 
+#convert the color and filter it for red pixels
 img_HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 img_upper_threshold = cv2.inRange(img_HSV, (0, 200, 130), (255, 255, 240))
 mask = img_upper_threshold
 
+#find contours on the image to identify the cones
 contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-#cv2.drawContours(img, contours, -1, (0,255,0), 3)
-
-#contours = imutils.grab_contours(contours)
 coords = list()
 for i in contours:
-    # area = dict()
-    # print(cv2.contourArea(i))
-    # area[i]=(cv2.contourArea(i))
+
     
     #print(i)
     M = cv2.moments(i)
+    #find the largest contours to single out the cones
     if(cv2.contourArea(i) > 200):
         try:
          cX = int(M['m10']/M['m00'])
@@ -32,12 +30,10 @@ for i in contours:
          
         except:
          continue
-        #print( M )
-        #cv2.drawContours(img, [i], -1, (0, 255, 0), 2)
+       # print the center of each contour
         cv2.circle(img, (cX, cY), 7, (255, 255, 255), -1)
-        #cv2.putText(img, "center", (cX - 20, cY - 20),
-		    #cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-
+       
+# finding points that are on the left side and right side of the image to create the two lines
 color = (0, 255, 0)
 left_line = list()
 right_line = list()
@@ -48,12 +44,10 @@ for point in coords:
     else:
         right_line.append(point)
 
-# for index in range(len(right_line) - 1):
-#     cv2.line(img, right_line[index], right_line[index+1], color, 4)
-# for index2 in range(len(left_line)-1):
-#     cv2.line(img, left_line[index], left_line[index2+1], color, 4)
+#plot the lines
 cv2.line(img, right_line[0], right_line[len(right_line) - 1], color, 4)
 cv2.line(img, left_line[0], left_line[len(left_line) - 1], color, 4)
+# display the answer
 cv2.imshow("cones", img)
 cv2.imshow("cones2", mask )
 
